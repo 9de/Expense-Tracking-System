@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام تتبع المصاريف</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header-container">
+            <h1>نظام تتبع المصاريف</h1>
+            <button id="themeToggle" class="theme-toggle">
+                <span id="themeIcon">🌙</span>
+                <span id="themeText">الوضع الداكن</span>
+            </button>
+        </div>
+        
+        <div class="salary-container">
+            <h3>إدارة الراتب</h3>
+            <div class="form-group">
+                <label for="salary">الراتب الشهري (ريال سعودي):</label>
+                <input type="number" id="salary" placeholder="أدخل راتبك الشهري">
+            </div>
+            <button id="setSalary">حفظ الراتب</button>
+        </div>
+        
+        <div class="summary">
+            <h3>ملخص مالي</h3>
+            <div class="total">الراتب الشهري: <span id="monthlySalary">0</span> ريال سعودي</div>
+            <div class="total">إجمالي المصروفات: <span id="totalAmount">0</span> ريال سعودي</div>
+            <div class="total">المتبقي: <span id="remainingAmount">0</span> ريال سعودي</div>
+            
+            <div style="margin-top: 15px;">
+                <label>نسبة الصرف من الراتب:</label>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="spendingProgress" style="width: 0%"></div>
+                    <div class="progress-text" id="spendingPercentage">0%</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-container">
+            <h3>إضافة مصروف جديد</h3>
+            <div class="form-group">
+                <label for="category">التصنيف:</label>
+                <select id="category">
+                    <option value="">اختر تصنيف</option>
+                    <option value="طعام">طعام</option>
+                    <option value="مواصلات">مواصلات</option>
+                    <option value="تسوق">تسوق</option>
+                    <option value="ترفيه">ترفيه</option>
+                    <option value="فواتير">فواتير</option>
+                    <option value="صحة">صحة</option>
+                    <option value="تعليم">تعليم</option>
+                    <option value="اشتراكات">اشتراكات</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="merchant">اسم التاجر:</label>
+                <input type="text" id="merchant" placeholder="أدخل اسم التاجر أو المحل">
+            </div>
+            
+            <div class="form-group">
+                <label for="amount">المبلغ (ريال سعودي):</label>
+                <input type="number" id="amount" placeholder="أدخل المبلغ">
+            </div>
+            
+            <div class="form-group">
+                <label for="date">التاريخ:</label>
+                <input type="date" id="date">
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">ملاحظات:</label>
+                <input type="text" id="notes" placeholder="ملاحظات إضافية (اختياري)">
+            </div>
+            
+            <button id="addExpense">إضافة مصروف</button>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>عدد المصروفات</h3>
+                <div class="stat-value" id="expenseCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>متوسط المصروف</h3>
+                <div class="stat-value" id="averageExpense">0</div>
+                <div>ريال سعودي</div>
+            </div>
+            <div class="stat-card">
+                <h3>أعلى مصروف</h3>
+                <div class="stat-value" id="highestExpense">0</div>
+                <div>ريال سعودي</div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <h3>توزيع المصاريف حسب التصنيف</h3>
+            <canvas id="categoryChart"></canvas>
+        </div>
+        
+        <div class="search-container">
+            <h3>استعلام عن المصاريف</h3>
+            <div class="form-group">
+                <label for="searchCategory">تصفية حسب التصنيف:</label>
+                <select id="searchCategory">
+                    <option value="">جميع التصنيفات</option>
+                    <option value="طعام">طعام</option>
+                    <option value="مواصلات">مواصلات</option>
+                    <option value="تسوق">تسوق</option>
+                    <option value="ترفيه">ترفيه</option>
+                    <option value="فواتير">فواتير</option>
+                    <option value="صحة">صحة</option>
+                    <option value="تعليم">تعليم</option>
+                    <option value="اشتراكات">اشتراكات</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>تصفية حسب الفترة:</label>
+                <div class="date-field">
+                    <input type="date" id="startDate" placeholder="من تاريخ">
+                    <input type="date" id="endDate" placeholder="إلى تاريخ">
+                </div>
+            </div>
+            
+            <button id="searchExpenses">بحث</button>
+            
+            <div class="btn-container">
+                <button id="resetSearch">إعادة ضبط</button>
+                <button id="exportExcel" class="btn-export">تصدير إلى Excel</button>
+            </div>
+        </div>
+        
+        <table id="expensesTable">
+            <thead>
+                <tr>
+                    <th>التصنيف</th>
+                    <th>اسم التاجر</th>
+                    <th>المبلغ (ريال)</th>
+                    <th>التاريخ</th>
+                    <th>ملاحظات</th>
+                </tr>
+            </thead>
+            <tbody id="expensesList">
+                <!-- البيانات ستظهر هنا -->
+            </tbody>
+        </table>
+    </div>
+
+   <script src="script.js"></script>
+</body>
+</html>
